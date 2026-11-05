@@ -1,0 +1,59 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ROS 中英文點選病歷範本</title><style>:root{font-family:system-ui,'Microsoft JhengHei',sans-serif;color:#203047;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1100px;margin:auto;padding:22px}header{background:#163b60;color:white;padding:24px;border-radius:16px}h1{font-size:24px;margin:0 0 8px}header p{margin:0;color:#d8e6f3}.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0}button{cursor:pointer;border:1px solid #b9cadd;border-radius:9px;padding:10px 14px;background:white;color:#153b60;font-weight:650}button.primary{background:#1769aa;color:white;border-color:#1769aa}button:hover{filter:brightness(.96)}.layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.85fr);gap:18px}.panel{background:white;border:1px solid #dbe5ef;border-radius:13px;padding:16px;margin-bottom:12px}details>summary{cursor:pointer;font-size:17px;font-weight:700;padding:5px 0}small,.sub{color:#63778b}.item{padding:13px 0;border-bottom:1px solid #edf0f4}.item:last-child{border-bottom:0}.label{font-weight:700;margin-bottom:8px}.label span{font-weight:400;color:#64768a;margin-left:8px}.options{display:flex;flex-wrap:wrap;gap:7px}.opt{border:1px solid #cad7e5;border-radius:8px;padding:7px 10px;cursor:pointer;background:#fff;font-size:13px}.opt input{position:absolute;opacity:0;pointer-events:none}.opt:has(input:checked){background:#dceeff;border-color:#1972bb;color:#134f80;font-weight:700}.detail{margin-top:9px;width:100%;padding:10px;border:1px solid #c9d7e6;border-radius:8px;display:none}.detail.visible{display:block}textarea{width:100%;min-height:380px;resize:vertical;padding:12px;border:1px solid #cbd7e5;border-radius:9px;font:13px/1.65 Consolas,monospace}.output{position:sticky;top:12px;align-self:start}.output h2{margin-top:0;font-size:19px}.output .toolbar{margin:10px 0}.status{font-size:13px;color:#64778b}.notice{font-size:12px;color:#6d7886;line-height:1.6}.section-actions{margin-top:12px;display:flex;gap:8px}@media(max-width:780px){.layout{display:block}.output{position:static}.wrap{padding:12px}header{padding:18px}}</style></head><body><div class="wrap"><header><h1>Review of Systems (ROS)</h1><p>外科入院病歷｜中英文對照點選｜英文病歷一鍵複製</p></header><div class="toolbar"><button id="openAll">展開全部</button><button id="closeAll">收合全部</button><button id="allNo">全部設定 No</button><button id="clear">清除所有選擇</button></div><div class="layout"><main id="sections"></main><aside class="panel output"><h2>英文病歷預覽</h2><label><input type="checkbox" id="positiveOnly"> 僅輸出陽性症狀</label><p class="status" id="count"></p><textarea id="result" spellcheck="false" aria-label="英文病歷輸出"></textarea><div class="toolbar"><button class="primary" id="copy">複製英文病歷</button><button id="select">全選文字</button></div><p class="notice">僅在目前瀏覽器內處理，不會自動儲存或上傳。請依實際問診選擇；未評估項目請勿直接勾選 No。外觀、意識及營養狀態較屬於 PE，依院內格式決定是否保留。</p></aside></div></div><script>
+const data=[
+['GENERAL','全身症狀',[
+['Appearance','外觀','Fair-looking|外觀尚可','Acutely ill-looking|急性病容','Chronically ill-looking|慢性病容'],
+['Consciousness','意識狀態','Alert|意識清楚','Drowsy|嗜睡','Comatose|昏迷'],
+['Nutritional status','營養狀態','Well-nourished|營養良好','Malnourished|營養不良','Obese|肥胖','Cachectic|惡病質'],
+['Weakness','無力','No|無','Generalized weakness|全身無力'],
+['Fatigue','疲倦','No|無','Fatigue|疲倦','Malaise|全身不適','Chronic fatigue|長期疲倦'],
+['Fever','發燒','No|無','Fever|發燒'],
+['Chills','畏寒','No|無','Chills|畏寒','Shaking chills|寒顫'],
+['Weight loss','體重減輕','No|無','Weight loss|體重減輕']]],
+['HEAD','頭部',[
+['Headache','頭痛','No|無','Localized headache|局部頭痛','Diffuse headache|廣泛性頭痛','Without associated symptoms|無伴隨症狀','With photophobia|伴隨畏光','With vomiting|伴隨嘔吐','With blurred vision|伴隨視力模糊'],
+['Dizziness','頭暈','No|無','Intermittent dizziness|間歇性頭暈','Persistent dizziness|持續性頭暈']]],
+['NECK','頸部', [['Neck stiffness','頸部僵硬','No|無','Yes|有']]],
+['RESPIRATORY SYSTEM','呼吸系統',[
+['Dyspnea','呼吸困難','No|無','Dyspnea on exertion|活動時呼吸困難','Dyspnea at rest|休息時呼吸困難'],
+['Wheezing','喘鳴','No|無','At night|夜間','In the early morning|清晨','Especially at|特定時段'],
+['Cough','咳嗽','No|無','Dry cough|乾咳','Productive cough|有痰咳嗽','Chronic cough|慢性咳嗽'],
+['Sputum','痰液','No|無','White sputum|白痰','Yellow sputum|黃痰','Green sputum|綠痰','Blood-streaked sputum|帶血絲痰'],
+['Hemoptysis','咳血','No|無','Yes|有']]],
+['CARDIOVASCULAR SYSTEM','心血管系統',[
+['Chest tightness','胸悶','No|無','On exertion|活動時','At rest|休息時'],
+['Chest pain','胸痛','No|無','On exertion|活動時','At rest|休息時'],
+['Exertional dyspnea','活動時呼吸困難','No|無','Yes|有','Reduced exercise tolerance|活動耐受度下降'],
+['Orthopnea','端坐呼吸','No|無','Yes|有'],
+['Paroxysmal nocturnal dyspnea (PND)','夜間陣發性呼吸困難','No|無','Yes|有'],
+['Palpitations','心悸','No|無','Yes|有'],
+['Tachycardia','心跳過快','No|無','Yes|有'],
+['Bradycardia','心跳過慢','No|無','Without symptoms|無症狀','With symptoms|有症狀']]],
+['GASTROINTESTINAL SYSTEM','腸胃系統',[
+['Dysphagia','吞嚥困難','No|無','With solid food|固體食物','With liquids|液體','With both solids and liquids|固體及液體'],
+['Loss of appetite','食慾不振','No|無','Yes|有'],
+['Nausea','噁心','No|無','Yes|有','Especially when|特定情況'],
+['Vomiting','嘔吐','No|無','After meals|飯後','Projectile vomiting|噴射性嘔吐'],
+['Diarrhea','腹瀉','No|無','Loose stools|軟便','Watery diarrhea|水瀉','Chronic diarrhea|慢性腹瀉'],
+['Constipation','便秘','No|無','Yes|有'],
+['Abdominal pain','腹痛','No|無','Localized abdominal pain|局部腹痛','Diffuse abdominal pain|廣泛性腹痛'],
+['Abdominal distension','腹脹','No|無','Yes|有']]],
+['URINARY SYSTEM','泌尿系統',[
+['Dysuria','解尿疼痛','No|無','Yes|有'],
+['Urinary urgency','尿急','No|無','Intermittent|間歇性','Persistent|持續性'],
+['Polyuria','多尿','No|無','Yes|有'],
+['Oliguria','少尿','No|無','Yes|有'],
+['Hematuria','血尿','No|無','Pink urine|粉紅色尿液','Red urine|紅色尿液','Gross hematuria|肉眼可見血尿'],
+['Nocturia','夜尿','No|無','Yes|有']]],
+['MUSCULOSKELETAL SYSTEM','肌肉骨骼系統',[
+['Arthralgia','關節疼痛','No|無','Joint pain|關節疼痛'],
+['Myalgia','肌肉疼痛','No|無','Proximal limbs|近端肢體','Distal limbs|遠端肢體','Diffuse|全身性','Especially over|特定部位'],
+['Muscle weakness','肌肉無力','No|無','Focal muscle weakness|局部肌肉無力','Generalized muscle weakness|全身肌肉無力']]],
+['SKIN','皮膚系統', [['Skin wounds','皮膚傷口','No|無','Wound|傷口','Pressure injury|壓力性損傷']]]
+];
+const root=document.getElementById('sections');const escapeHtml=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let index=0;for(const [title,zh,items] of data){const details=document.createElement('details');details.className='panel';details.open=title==='GENERAL';details.dataset.group=title;const summary=document.createElement('summary');summary.textContent=title+'（'+zh+'）';details.append(summary);for(const [name,translation,...options] of items){const id='q'+index++;const div=document.createElement('div');div.className='item';div.dataset.name=name;div.dataset.id=id;const label=document.createElement('div');label.className='label';label.innerHTML=escapeHtml(name)+' <span>（'+escapeHtml(translation)+'）</span>';div.append(label);const opts=document.createElement('div');opts.className='options';options.forEach((opt,i)=>{const [en,cn]=opt.split('|');const l=document.createElement('label');l.className='opt';const inp=document.createElement('input');inp.type='radio';inp.name=id;inp.value=en;inp.addEventListener('change',()=>{const d=div.querySelector('.detail');d.classList.toggle('visible',en!=='No');update()});l.append(inp,document.createTextNode(en+'（'+cn+'）'));opts.append(l)});div.append(opts);const extra=document.createElement('input');extra.className='detail';extra.type='text';extra.placeholder='補充英文：時間、部位、次數、程度（選填）';extra.setAttribute('aria-label',name+'補充說明');extra.addEventListener('input',update);div.append(extra);details.append(div)}const actions=document.createElement('div');actions.className='section-actions';const no=document.createElement('button');no.textContent='本系統全部選 No';no.onclick=()=>setNo(details);const reset=document.createElement('button');reset.textContent='清除本系統';reset.onclick=()=>resetGroup(details);actions.append(no,reset);details.append(actions);root.append(details)}
+function setNo(group){group.querySelectorAll('.item').forEach(div=>{const no=[...div.querySelectorAll('input[type=radio]')].find(i=>i.value==='No');if(no){no.checked=true;div.querySelector('.detail').classList.remove('visible');div.querySelector('.detail').value=''}});update()}
+function resetGroup(group){group.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);group.querySelectorAll('.detail').forEach(i=>{i.value='';i.classList.remove('visible')});update()}
+function update(){const positiveOnly=document.getElementById('positiveOnly').checked;const lines=['REVIEW OF SYSTEMS:'];let count=0;for(const group of root.querySelectorAll('details')){const selected=[];for(const div of group.querySelectorAll('.item')){const inp=div.querySelector('input[type=radio]:checked');if(!inp)continue;count++;if(positiveOnly&&inp.value==='No')continue;const extra=div.querySelector('.detail').value.trim();selected.push('  '+div.dataset.name+': '+inp.value+(extra?' - '+extra:''))}if(selected.length)lines.push('\n'+group.dataset.group+':\n'+selected.join('\n'))}document.getElementById('result').value=lines.join('\n');document.getElementById('count').textContent=count+' 項已選擇 / '+index+' 項';}
+document.getElementById('openAll').onclick=()=>root.querySelectorAll('details').forEach(d=>d.open=true);document.getElementById('closeAll').onclick=()=>root.querySelectorAll('details').forEach(d=>d.open=false);document.getElementById('allNo').onclick=()=>root.querySelectorAll('details').forEach(setNo);document.getElementById('clear').onclick=()=>{if(confirm('確定清除全部選擇？'))root.querySelectorAll('details').forEach(resetGroup)};document.getElementById('positiveOnly').onchange=update;document.getElementById('select').onclick=()=>document.getElementById('result').select();document.getElementById('copy').onclick=async()=>{const txt=document.getElementById('result').value;try{await navigator.clipboard.writeText(txt)}catch(e){const el=document.getElementById('result');el.select();document.execCommand('copy')}const btn=document.getElementById('copy');btn.textContent='已複製';setTimeout(()=>btn.textContent='複製英文病歷',1500)};update();
+</script></body></html>
